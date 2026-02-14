@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agujero Negro del Amor</title>
+  <style>
+    #modal-bienvenida {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(10, 10, 30, 0.92);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.7s;
+    }
+    #modal-bienvenida.oculto {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #modal-bienvenida .contenido {
+      background: rgba(30, 30, 60, 0.98);
+      border-radius: 18px;
+      box-shadow: 0 0 40px #000a;
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
+      text-align: center;
+      color: #fff;
+      font-family: 'Great Vibes', cursive, Arial, sans-serif;
+      font-size: 2.2rem;
+      max-width: 90vw;
+    }
+    #modal-bienvenida button {
+      margin-top: 2.2rem;
+      font-size: 1.5rem;
+      padding: 0.8rem 2.2rem;
+      border-radius: 12px;
+      background: #c9204b;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      transition: background 0.2s;
+    }
+    #modal-bienvenida button:hover {
+      background: #a31536;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(ellipse at bottom, #0d1b2a, #000000);
+    }
+    canvas {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100dvh;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="modal-bienvenida">
+    <div class="contenido">
+      <div>Toca aqui ❤</div>
+      <img src="https://i.pinimg.com/736x/2e/08/91/2e0891b0f215a1afa9d3afe64381de4a.jpg" 
+           style="max-width:80%; border-radius:12px; display:block; margin:1rem auto;">
+      <button id="btn-ingresar">presiona aquí</button>
+    </div>
+  </div>
+
+  <canvas id="galaxy-canvas"></canvas>
+
+  <!-- TU AUDIO INTEGRADO -->
+  <audio id="musica" loop>
+    <source src="AhaTok_Angel_664c63de-7999-4b59-b96f-c50831505653.mp3" type="audio/mpeg">
+  </audio>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    window.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('modal-bienvenida');
+      const btn = document.getElementById('btn-ingresar');
+      const audio = document.getElementById('musica');
+
+      btn.addEventListener('click', () => {
+        modal.classList.add('oculto');
+        setTimeout(() => { modal.style.display = 'none'; }, 700);
+        audio.play(); // reproducir tu música al entrar
+      });
+    });
+
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
+    const renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById('galaxy-canvas'),
+      antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    const blackHole = new THREE.Mesh(
+      new THREE.SphereGeometry(30, 64, 64),
+      new THREE.MeshStandardMaterial({ color: 0x000000 })
+    );
+    scene.add(blackHole);
+
+    const fontLoader = new FontLoader();
+    fontLoader.load(
+      'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/gentilis_bold.typeface.json',
+      (font) => {
+
+        // TEXTO PRINCIPAL
+        const mainText = new TextGeometry("Para ti, mi niña", {
+          font: font,
+          size: 24,
+          height: 6,
+          bevelEnabled: true,
+          bevelThickness: 1.2,
+          bevelSize: 0.6
+        });
+
+        mainText.computeBoundingBox();
+        const xOffset = -0.5 * (mainText.boundingBox.max.x - mainText.boundingBox.min.x);
+
+        const material = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          emissive: 0xff66aa,
+          emissiveIntensity: 1.4
+        });
+
+        const mesh = new THREE.Mesh(mainText, material);
+        mesh.position.set(xOffset, 60, 0);
+        scene.add(mesh);
+
+        // FIRMA A&D
+        const signatureText = new TextGeometry("A&D", {
+          font: font,
+          size: 10,
+          height: 2
+        });
+
+        signatureText.computeBoundingBox();
+        const sigOffset = -0.5 * (signatureText.boundingBox.max.x - signatureText.boundingBox.min.x);
+
+        const sigMaterial = new THREE.MeshStandardMaterial({
+          color: 0xff99cc,
+          emissive: 0xff66aa,
+          emissiveIntensity: 0.8
+        });
+
+        const sigMesh = new THREE.Mesh(signatureText, sigMaterial);
+        sigMesh.position.set(sigOffset, 30, 0);
+        scene.add(sigMesh);
+      }
+    );
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1));
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+      controls.update();
+    }
+
+    camera.position.set(0, 180, 700);
+    animate();
+  </script>
+
+</body>
+</html>
